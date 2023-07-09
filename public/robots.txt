@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/*
+
+Sitemap: https://www.infinyte.com/sitemap.xml

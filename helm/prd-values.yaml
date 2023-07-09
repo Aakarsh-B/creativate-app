@@ -1,0 +1,77 @@
+projectName: infy  # required
+serviceName: esop
+default:
+  annotations:
+    all:
+      app.kv.io/env: prd
+  labels:
+    all:
+      service-name: infy-esop
+  resources:
+    request:
+      cpu: 250m
+      memory: 512Mi
+    limit:
+      cpu: 250m
+      memory: 512Mi
+  replicaCount: 1
+  image:
+    repository: 
+    tag: 
+    imagePullPolicy: Always
+  configMaps:
+    injection:
+      enabled: false
+    volumeMount:
+      enabled: false
+  externalSecrets:
+    injection:
+      enabled: false
+    volumeMount:
+      enabled: false
+deployment:
+  - name: "web"
+    service:
+      type: ClusterIP
+      ports:
+      - port: 3000
+        name: web
+    serviceAccount:
+        create: true
+        # annotations: 
+        #   iam.gke.io/gcp-service-account: devops-admin@infinyte-dev.iam.gserviceaccount.com
+    containers:
+      - name: "web"
+        port: 3000
+        # # envFrom:
+        # #   - secretRef:  
+        # #       name: doppler-secret-core
+        # secrets:
+        # # # envFrom:
+        # # #   - secretRef:  
+        # # #       name: doppler-secret-core
+        #   volumeMount:
+        #     secrets:
+        #       - data:  
+        #           - fileName: ".env"
+        #             keyName: "ENV_ESOP"
+        #             mountPath: "/home/node/app/.env" 
+        #         secretName: doppler-token-app
+        healthcheck: 
+          enabled: true
+          livenessProbe: 
+            path : "/app/api/health"
+            initialDelaySeconds : 10
+            periodSeconds: 20
+          readinessProbe: 
+            path : "app/api/health"
+            initialDelaySeconds : 30
+            periodSeconds : 30
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 60
+      targetMemoryUtilizationPercentage: 80
+    PodDisruptionBudget:
+      minAvailable: 1
